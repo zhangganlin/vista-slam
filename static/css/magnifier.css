@@ -1,0 +1,37 @@
+* {box-sizing: border-box;}
+
+figure {
+    display: inline-block;
+}
+
+figure figcaption {
+    text-align: center;
+}
+
+.img-zoom-container {
+    position: relative;
+    overflow-x: auto;
+    white-space: nowrap;
+} 
+
+.img-zoom-container img {
+    border: 1px solid #d4d4d4;
+    height: 240px;
+}
+
+.img-zoom-lens {
+    position: absolute;
+    border: 2px solid;
+    border-color:yellow;
+    /*set the size of the lens:*/
+    width: 80px;
+    height: 80px;
+}
+
+.img-zoom-result {
+    display: inline-flex;
+    border: 1px solid #d4d4d4;
+    /*set the size of the result div:*/
+    width: 240px;
+    height: 240px;
+}

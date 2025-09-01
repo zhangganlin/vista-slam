@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="ViSTA-SLAM: Globally Optimized RGB-only Implicit Encoding Point Cloud SLAM">
+  <meta name="keywords" content="ViSTA-SLAM, SLAM, pose graph optimization, dense SLAM">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ViSTA-SLAM</title>
+  <link rel="icon" href="./media/vista_logo.png" type="image/png">
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.ico">
+  <link rel="stylesheet" type="text/css" href="./static/css/magnifier.css">
+  <link href="./static/css/twentytwenty.css" rel="stylesheet" type="text/css"/>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+
+    <style>
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* two columns: image | video */
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        .grid img, 
+        .grid video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .caption {
+            grid-column: span 2;   /* make text span across both columns */
+            text-align: center;
+            font-size: 1.1em;
+            font-style: italic;
+            margin: 5px 0 30px;   /* spacing above/below */
+            color: #333;
+        }
+    </style>
+
+
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">
+            <img src="./media/vista_logo.png" style="width: 70px;"/>
+            <span style="color: rgb(78, 149, 217);">ViSTA-SLAM</span>: <span style="color: rgb(78, 149, 217);">Vi</span><span style="color: rgb(100, 100, 100);">sual </span>
+            <span style="color: rgb(78, 149, 217);">SLAM</span></span><span style="color: rgb(100, 100, 100);"> with </span>
+            <span style="color: rgb(78, 149, 217);">S</span><span style="color: rgb(100, 100, 100);">ymmetric </span>
+            <span style="color: rgb(78, 149, 217);">T</span><span style="color: rgb(100, 100, 100);">wo-view </span>
+            <span style="color: rgb(78, 149, 217);">A</span><span style="color: rgb(100, 100, 100);">ssociation</span>
+            </h1>  
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://ganlinzhang.xyz" target="_blank">Ganlin Zhang</a><sup>1,2</sup>, </span>
+            <span class="author-block">
+              <a href="https://shenhanqian.github.io/" target="_blank">Shenhan Qian</a><sup>1,2</sup>, </span>
+            <span class="author-block">
+              <a href="https://xiwang1212.github.io/homepage/" target="_blank">Xi Wang</a><sup>1,2,3</sup>, </span>
+            <span class="author-block">
+              <a href="https://cvg.cit.tum.de/members/cremers" target="_blank">Daniel Cremers</a><sup>1,2</sup> </span>
+                              
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1 </sup>TUM,  <sup>2 </sup>MCML, <sup>3 </sup>ETH Zurich</span>
+          </div>
+
+
+          <!-- <div class="is-centered is-size-4"><b>CVPR 2024</b></div> -->
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span> -->
+              <!-- <span class="link-block">
+                <a href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>                             -->
+              <span class="link-block">
+                <a href="https://arxiv.org/"
+                   class="external-link button is-normal is-rounded is-dark" target="_blank">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/zhangganlin/vista-slam"
+                   class="external-link button is-normal is-rounded is-dark" target="_blank">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Dataset Link. -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" controls muted loop autoplay width="100%">
+        <source src="./media/vista_slam.mp4"
+                type="video/mp4">
+      </video>
+      <!-- <div class="content has-text-justified">
+        We show the online camera tracking and reconstruction process on <code>apt0</code> from the BundleFusion dataset.
+      </div> -->
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <img src="./media/teaser.png">
+    <div class="content has-text-justified">
+        By combining the proposed lightweight frontend Symmetric Two-view Association (STA) model 
+        with Sim(3) pose graph optimization and loop closuring as the backend, 
+        <strong>ViSTA-SLAM</strong> achieves high-quality reconstruction and accurate trajectory estimation on 
+        challenging scenes while running at 48 FPS.
+      </div>
+  </div>
+
+</section>
+
+
+
+
+<section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            We present ViSTA-SLAM as a real-time monocular visual SLAM system that operates without requiring camera intrinsics, 
+            making it broadly applicable across diverse camera setups. 
+            At its core, the system employs a lightweight symmetric two-view association (STA) model as the frontend, 
+            which simultaneously estimates relative camera poses and regresses local pointmaps from only two RGB images. 
+            This design reduces model complexity significantly, the size of our frontend is only 35% that of comparable state-of-the-art methods,
+            while enhancing the quality of two-view constraints used in the pipeline.
+            In the backend, we construct a specially designed Sim(3) pose graph that incorporates loop closures to address accumulated drift. 
+            Extensive experiments demonstrate that our approach achieves superior performance in both camera tracking 
+            and dense 3D reconstruction quality compared to current methods.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+<section class="section m-0 p-0">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column">
+        <h2 class="title is-3">ViSTA-SLAM Overview</h2>
+    
+        <div class="column pt-0">
+          <figure class="image is-full-width">
+            <img src="./media/architecture.png"/>
+          </figure>
+        </div>
+        <div class="content has-text-justified">
+          <p>
+            Given sequential video frames without intrinsics as the input, our frontend model takes in view pairs and predicts 
+            local pointmaps and relative poses within each pair. We then use the pair-wise predictions to construct a Sim(3) pose graph with loop closure and 
+            optimize it via Levenberg-Marquardt algorithm. The frontend model employs a fully symmetric design, making the model lightweight and supporting 
+            more flexible pose graph optimization. The <span style="color: rgb(37, 50, 255);">blue</span> edges in the pose graph and final results correspond 
+            connections between neighboring nodes (views), the <span style="color: rgb(255, 168, 82);">orange</span> edges correspond to loop closures, 
+            and the <span style="color: rgb(202, 229, 255);">light blue</span> frustums represent the estimated camera poses.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<br><br><br>
+
+
+<section class="section m-0 p-0">
+  <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+            <div class="column">
+                <h2 class="title is-3">ViSTA-SLAM Qualitative Results</h2>
+                <div class="grid">
+                    <img src="./media/7scenes_office.png" alt="7scenes_office">
+                    <video autoplay loop muted playsinline>
+                        <source src="./media/7scenes_office.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">7-Scenes <code>office</code> </div>
+
+                    <img src="./media/7scenes_redkitchen.png" alt="7scenes_redkitchen">
+                    <video autoplay loop muted playsinline>
+                        <source src="./media/7scenes_redkitchen.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">7-Scenes <code>redkitchen</code> </div>
+
+                    <img src="./media/bf_apt1.png" alt="bundlefusion apt1">
+                    <video autoplay loop muted playsinline>
+                        <source src="./media/bf_apt1.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">BundleFusion <code>apt1</code> </div>
+
+                    <img src="./media/bf_office0.png" alt="bundlefusion office0">
+                    <video autoplay loop muted playsinline>
+                        <source src="./media/bf_office0.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">7-BundleFusion <code>office0</code> </div>
+
+                    <img src="./media/tumrgbd_floor.png" alt="TUM-RGBD floor">
+                    <video autoplay loop muted playsinline>
+                        <source src="./media/tumrgbd_floor.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">TUM-RGBD <code>floor</code> </div>
+
+                    <img src="./media/tumrgbd_room.png" alt="TUM-RGBD room">
+                    <video autoplay loop muted playsinline>
+                        <source src="./media/tumrgbd_room.mp4" type="video/mp4">
+                    </video>
+                    <div class="caption">7-RGBD <code>room</code> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>
+        TO BE ADDED
+    </code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-4">
+        <div class="content">
+          <p>
+            The website is based on <a href="https://github.com/nerfies/nerfies.github.io" target="_blank">this source code</a> and the GlORIE-SLAM project page.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+
