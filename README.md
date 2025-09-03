@@ -21,7 +21,7 @@
   </p>
   <p align="center">
       <strong><sup>1 </sup>TU Munich,  <sup>2 </sup>MCML, <sup>3 </sup>ETH Zurich</strong>
-      <strong><h4 align="center"><a href="https://arxiv.org" target="_blank">Paper</a> | <a href="https://ganlinzhang.xyz/vista-slam/" target="_blank">Project Website</a></h4></strong>
+      <strong><h4 align="center"><a href="https://arxiv.org/abs/2509.01584" target="_blank">Paper</a> | <a href="https://ganlinzhang.xyz/vista-slam/" target="_blank">Project Website</a></h4></strong>
   </strong></p>
 
 <p align="center">
@@ -195,7 +195,15 @@ Our codebase is partially based on [Spann3r](https://github.com/HengyiWang/spann
 
 If you find our code or paper useful, please cite
 ```bibtex
-TO BE ADDED
+@misc{zhang2025vista,
+      title={{ViSTA-SLAM}: Visual {SLAM} with Symmetric Two-view Association}, 
+      author={Ganlin Zhang and Shenhan Qian and Xi Wang and Daniel Cremers},
+      year={2025},
+      eprint={2509.01584},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2509.01584}, 
+}
 ```
 ## Contact
 Contact [Ganlin Zhang](mailto:ganlin.zhang@tum.de) for questions, comments and reporting bugs.
