@@ -195,7 +195,7 @@ Our codebase is partially based on [Spann3r](https://github.com/HengyiWang/spann
 
 If you find our code or paper useful, please cite
 ```bibtex
-@misc{zhang2025vista,
+@misc{zhang2025vistaslam,
       title={{ViSTA-SLAM}: Visual {SLAM} with Symmetric Two-view Association}, 
       author={Ganlin Zhang and Shenhan Qian and Xi Wang and Daniel Cremers},
       year={2025},
