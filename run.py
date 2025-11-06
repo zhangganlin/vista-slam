@@ -10,7 +10,7 @@ import glob, time, argparse, yaml, munch, os, tqdm
 
 print=print_msg
 
-def log_view(topic, cam_pose, img, pts3d, K, pts3d_mask,show_img=True, show_camera=True, pointmap=None, pointcloud=True):
+def log_view(topic, cam_pose, img, pts3d, K, pts3d_mask,show_img=True, show_camera=True, pointmap=None, pointcloud=True, downsample=1.0):
     img_shape = img.shape[1:3]
 
     if K is None:
@@ -37,7 +37,16 @@ def log_view(topic, cam_pose, img, pts3d, K, pts3d_mask,show_img=True, show_came
     img = img.numpy().transpose(1,2,0)
     pts = pts3d[pts3d_mask]
     colors = img[pts3d_mask]
-
+    
+    # 💡 Downsample the pointcloud to save memory of visualization
+    N = len(pts)
+    downsample = max(0.0, min(1.0, downsample))
+    if downsample < 1.0:
+        idx = np.random.choice(N, int(N * downsample), replace=False)
+        pts = pts[idx]
+        colors = colors[idx]
+    
+    
     if pointcloud:
         rr.log(f"world/est/{topic}/points",rr.Points3D(pts,colors=colors,radii=0.002))
     
