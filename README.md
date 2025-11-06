@@ -20,7 +20,7 @@
   </p>
   <p align="center">
       <strong><sup>1 </sup>TU Munich,  <sup>2 </sup>MCML, <sup>3 </sup>ETH Zurich</strong>
-      <strong><h4 align="center"><a href="https://arxiv.org/abs/2509.01584" target="_blank">Paper</a> | <a href="https://ganlinzhang.xyz/vista-slam/" target="_blank">Project Website</a> |           <a href="https://app.rerun.io/version/0.24.1/index.html?url=https://cvg.cit.tum.de/webshare/g/papers/vista_slam/0054.rrd&url=https://cvg.cit.tum.de/webshare/g/papers/vista_slam/vista_slam.rbl&hide_welcome_screen=true&allow_fullscreen=true" target="_blank" class="button is-light is-info">
+      <strong><h4 align="center"><a href="https://arxiv.org/abs/2509.01584" target="_blank">Paper</a> | <a href="https://ganlinzhang.xyz/vista-slam/" target="_blank">Project Website</a> |           <a href="https://app.rerun.io/version/0.24.1/index.html?url=https://cvg.cit.tum.de/webshare/g/papers/vista_slam/0054.rrd&url=https://cvg.cit.tum.de/webshare/g/papers/vista_slam/vista_slam.rbl&hide_welcome_screen=true&allow_fullscreen=true" target="_blank">
             Interactive 3D Visualization
           </a></h4></strong> 
   </strong></p>
