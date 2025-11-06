@@ -1,6 +1,5 @@
 
-### The full codebase will be released soon ...
----
+
 
 
 <!-- PROJECT LOGO -->
@@ -13,7 +12,7 @@
   <p align="center">
     <a href="https://ganlinzhang.xyz" target="_blank"><strong>Ganlin Zhang<sup>1,2</sup></strong></a>
     ·
-    <a href="https://enhanqian.github.io/" target="_blank"><strong>Shenhan Qian<sup>1,2</sup></strong></a>
+    <a href="https://shenhanqian.github.io/" target="_blank"><strong>Shenhan Qian<sup>1,2</sup></strong></a>
     ·
     <a href="https://xiwang1212.github.io/homepage/" target="_blank"><strong>Xi Wang<sup>1,2,3</sup></strong></a>
     ·
@@ -29,17 +28,9 @@
     <strong>ViSTA-SLAM</strong> is a real-time monocular dense SLAM pipeline that combines a Symmetric Two-view Association (STA) frontend with Sim(3) pose graph optimization and loop closure, enabling accurate camera trajectories and high-quality 3D scene reconstruction from RGB inputs.
 </p>
 
-### Online visualization
-<p align="center">
-    <img src="./media/rerun_eg.gif" alt="rerun_eg" width="100%">
-</p>
 
-### Pose graph and final results visualization
-<p align="center">
-    <img src="./media/o3d_eg.gif" alt="rerun_eg" width="60%">
-</p>
-
-<!-- <details open="open" style='padding: 10px; border-radius:5px 30px 30px 5px; border-style: solid; border-width: 1px;'>
+<!-- TABLE OF CONTENTS -->
+<details open="open" style='padding: 10px; border-radius:5px 30px 30px 5px; border-style: solid; border-width: 1px;'>
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -71,16 +62,12 @@
 ```bash
 git clone https://github.com/zhangganlin/vista-slam.git
 cd vista-slam
-```
-2. Install dependency
-```bash
-# used by Bag of Words loop detection
-sudo apt-get install libopencv-dev
+git submodule update --init --recursive
 ```
 
 2. Creating a new conda environment and install python dependencies.
 ```bash
-conda create -n vista python=3.11 cmake=3.31.2 -c conda-forge
+conda create -n vista python=3.11 cmake=3.31.2 gcc_linux-64=11.4.0 gxx_linux-64=11.4.0 libopencv=4.12.0 -c conda-forge
 conda activate vista
 
 # install torch according to your cuda version
@@ -100,7 +87,7 @@ python setup.py build_ext --inplace
 cd ../../../../
 ```
 
-4. Download pretrained model.
+3. Download pretrained model.
 Download the pretained models from HuggingFace (https://huggingface.co/zhangganlin/vista_slam/tree/main), and put them inside the `pretrains` folder.
 * [frontend_sta_weights.pth](https://huggingface.co/zhangganlin/vista_slam/resolve/main/frontend_sta_weights.pth?download=true)
 * [ORBvoc.txt](https://huggingface.co/zhangganlin/vista_slam/resolve/main/ORBvoc.txt?download=true)
@@ -142,7 +129,7 @@ These commands will run ViSTA-SLAM on 7-Scenes `redkitchen` scene and TUM-RGBD `
 
 ### Test on other sequential data
 ```bash
-python run.py --config configs/default.yaml --images "PATH/TO/IMAGES*.png/jpg" --output OUTPUT_FOLDER
+python run.py --config configs/default.yaml --images "PATH/TO/IMAGES/*.png/jpg" --output OUTPUT_FOLDER
 ```
 All adjustable configuration parameters are defined in configs/default.yaml, where explanations are also provided. You can modify them to suit your setup.
 
@@ -188,7 +175,7 @@ python evaluation_tumrgbd.py --dataset_folder "datasets/tumrgbd" --output output
 
 
 ## Acknowledgement
-Our codebase is partially based on [Spann3r](https://github.com/HengyiWang/spann3r), [SLAM3R](https://github.com/PKU-VCL-3DV/SLAM3R) and [VGGT-SLAM](https://github.com/MIT-SPARK/VGGT-SLAM), we thank the authors for making these codebases publicly available. Our work would not have been possible without your great efforts! -->
+Our codebase is partially based on [Spann3r](https://github.com/HengyiWang/spann3r), [SLAM3R](https://github.com/PKU-VCL-3DV/SLAM3R) and [VGGT-SLAM](https://github.com/MIT-SPARK/VGGT-SLAM), we thank the authors for making these codebases publicly available. Our work would not have been possible without your great efforts!
 
 
 ## Citation
@@ -206,4 +193,4 @@ If you find our code or paper useful, please cite
 }
 ```
 ## Contact
-Contact [Ganlin Zhang](mailto:ganlin.zhang@tum.de) for questions, comments and reporting bugs.
+Please raise [issues](https://github.com/zhangganlin/vista-slam/issues) in this repository or contact [Ganlin Zhang](mailto:ganlin.zhang@tum.de) directly for questions, comments, or bug reports.

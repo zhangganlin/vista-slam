@@ -142,13 +142,5 @@ frontend_sta_weights.pth
 
 *.code-workspace
 
-preprocessing/slurm_scripts
-slam3r/slam/test
-test
-
-exp_figures
-test*.py
-
-preprocessing
 pretrains
 output

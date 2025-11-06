@@ -1,0 +1,3 @@
+[submodule "DBoW3Py"]
+	path = DBoW3Py
+	url = https://github.com/zhangganlin/Python-DBoW3.git
