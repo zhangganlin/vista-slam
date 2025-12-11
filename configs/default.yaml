@@ -49,7 +49,7 @@ rel_pose_thres: 0.75
   #         and the last keyframe exceeds flow_thres
   # "flow_stride": use "flow" to detect keyframes as above, but switch 
   #                to "stride" if the number of keyframes exceeds max_view_num
-keyframe_detection: "stride"
+keyframe_detection: "flow_stride"
 stride: 25
 flow_thres: 5.0
 
