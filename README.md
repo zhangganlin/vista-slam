@@ -25,6 +25,10 @@
           </a></h4></strong> 
   </strong></p>
 
+### Update
+<a href="#run-with-live-camera">Live camera mode</a> is now supported!
+<p></p>
+
 <p align="center">
     <img src="./media/teaser.gif" alt="teaser_img" width="100%">
     <strong>ViSTA-SLAM</strong> is a real-time monocular dense SLAM pipeline that combines a Symmetric Two-view Association (STA) frontend with Sim(3) pose graph optimization and loop closure, enabling accurate camera trajectories and high-quality 3D scene reconstruction from RGB inputs.
@@ -152,6 +156,13 @@ python run.py --config configs/default.yaml --images "PATH/TO/IMAGES*.png/jpg" -
 </p>
 
 You can also run ViSTA-SLAM in a remote machine (i.e. cluster) and visualize it in the local machine, just adjust the `rerun_url` in the config file, replace `rerun+http://127.0.0.1:9876/proxy` with your local machine's ip with similar format. And open Rerun cilent in the local machine, run ViSTA-SLAM in the remote machine, the visualization will be shown automatically in the local Rerun client.
+
+### Run with Live Camera
+Use webcam as online input to ViSTA-SLAM, use your path to webcam instead of `PATH_TO_CAM`, e.g '/dev/video1'
+```bash
+python run_live.py --config configs/default.yaml --camera PATH_TO_CAM --output output/test
+```
+Other parameters are similar to the above dataset mode.
 
 
 ### Visualize final results

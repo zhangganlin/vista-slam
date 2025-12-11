@@ -19,17 +19,24 @@ class SLAM_image_only(BaseViewGraphDataset):
         self.ImgNorm = tvf.Compose([tvf.ToTensor(), tvf.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         self.ImgGray = tvf.Compose([tvf.ToTensor(), tvf.Grayscale(num_output_channels=1)])
 
-    def __getitem__(self, i):
+    def process_image(self, rgb_image, img_name):
+        """ Crop and resize an image to the desired resolution.
+        """
         value = munch.Munch()
-        rgb_image = imread_cv2(self.color_paths[i])
-
         rgb_image = self._crop_resize_if_necessary_image_only(
             rgb_image, self.resolution, w_edge=10, h_edge=10)
 
         value['gray'] = self.ImgGray(rgb_image)
         value['rgb'] = self.ImgNorm(rgb_image)
-        value['img_name'] = osp.basename(self.color_paths[i])
+        value['img_name'] = osp.basename(img_name)
 
+        return value
+        
+
+    def __getitem__(self, i):
+        rgb_image = imread_cv2(self.color_paths[i])
+        img_name = osp.basename(self.color_paths[i])
+        value = self.process_image(rgb_image, img_name)
         return value
 
     def __len__(self):

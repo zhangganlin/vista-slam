@@ -24,7 +24,7 @@ class OnlineSLAM:
                  loop_dist_min:int=40, loop_nms:int=40,
                  loop_cand_thresh_neighbor:int=5,
                  conf_thres:float=4.2, rel_pose_thres:float=0.75, 
-                 flow_thres:float=5.0, pgo_every:int=500):
+                 flow_thres:float=5.0, pgo_every:int=500, live_mode:bool=False):
         self.device = torch.device("cuda")
         self.verbose = verbose
         self.max_view_num = max_view_num
@@ -68,6 +68,7 @@ class OnlineSLAM:
             "pgo": 0.0,
             "graph_construction": 0.0,  
         }
+        self.live_mode = live_mode
 
     def reset(self):
         self.enc_features = []
@@ -103,6 +104,8 @@ class OnlineSLAM:
     
     def pose_graph_optimize(self):
         print_msg(f"Pose graph optimization (at keyframe {self.view_num}) ...", color=FontColor.PoseGraphOpt)
+        if self.live_mode:
+            print_msg(f"This may cause latency in live mode, please hold the camera steady if possible.",color=FontColor.PoseGraphOpt)
         node_num = self.pose_graph_nodes.num_nodes
         edge_num = self.pose_graph_edges.num_edges
 
