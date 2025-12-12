@@ -144,5 +144,3 @@ frontend_sta_weights.pth
 
 pretrains
 output
-
-cam_test.py
