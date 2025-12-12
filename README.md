@@ -25,9 +25,13 @@
           </a></h4></strong> 
   </strong></p>
 
-### Update
+### Update 
 <a href="#run-with-live-camera">Live camera mode</a> is now supported!
-<p></p>
+
+https://github.com/user-attachments/assets/0bbbb126-3fe8-47b1-821b-b219477d1293
+
+
+---
 
 <p align="center">
     <img src="./media/teaser.gif" alt="teaser_img" width="100%">
