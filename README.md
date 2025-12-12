@@ -28,7 +28,8 @@
 ### Update 
 <a href="#run-with-live-camera">Live camera mode</a> is now supported!
 
-https://github.com/user-attachments/assets/0bbbb126-3fe8-47b1-821b-b219477d1293
+https://github.com/user-attachments/assets/ac8732d0-4efd-4814-a168-01eae799df7c
+
 
 
 ---
