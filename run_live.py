@@ -86,7 +86,8 @@ def rerun_vis_views(slam:OnlineSLAM, show_all):
         k = intri.cpu().numpy()
         show_pointcloud = True
         log_view(f"cam_{v}",pose,
-                slam.imgs[v],pcl,k,pcl_mask,show_img=True, show_camera=True, pointmap=pointmap, pointcloud=show_pointcloud)
+                slam.imgs[v],pcl,k,pcl_mask,show_img=False, show_camera=True, pointmap=pointmap, pointcloud=show_pointcloud,
+                downsample=0.2)
     return est_poses, local_pcls, masks
 
 
