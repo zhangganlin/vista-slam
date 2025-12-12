@@ -150,7 +150,7 @@ if __name__ == "__main__":
         if cfg.rerun_save:
             rr.save(output_folder+"/rerun_recording.rrd")
         if cfg.rerun_vis:
-            rr.connect_grpc(cfg.rerun_url,flush_timeout_sec=None)
+            rr.connect_grpc(cfg.rerun_url)
         rr.log(f"/world",rr.Transform3D())
 
     first = True
