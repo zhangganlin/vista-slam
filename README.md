@@ -165,7 +165,7 @@ You can also run ViSTA-SLAM in a remote machine (i.e. cluster) and visualize it 
 ### Run with Live Camera
 Use webcam as online input to ViSTA-SLAM, use your path to webcam instead of `PATH_TO_CAM`, e.g `/dev/video1`
 ```bash
-python run_live.py --config configs/default.yaml --camera PATH_TO_CAM --output OUTPUT_FOLDER
+python run_live.py --config configs/live.yaml --camera PATH_TO_CAM --output OUTPUT_FOLDER
 ```
 Other parameters are similar to the above dataset mode.
 

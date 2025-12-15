@@ -70,6 +70,9 @@ class OnlineSLAM:
         }
         self.live_mode = live_mode
 
+        self.loop_related_views = set()
+        self.pgo_window_size = 2*pgo_every
+
     def reset(self):
         self.enc_features = []
         self.enc_pos = []
@@ -109,19 +112,32 @@ class OnlineSLAM:
         node_num = self.pose_graph_nodes.num_nodes
         edge_num = self.pose_graph_edges.num_edges
 
-        graph = PoseGraphOpt(self.pose_graph_nodes.poses[:node_num]).to(self.device)
+        start_view = max(0, self.view_num - self.pgo_window_size)
+        last_view = self.view_num - 1
+        opt_node_idxs = set()
+        for v in range(start_view, last_view+1):
+            opt_node_idxs.update(self.pose_graph_nodes.view_to_node[v])
+        opt_node_idxs.update(self.loop_related_views)
+        opt_node_idxs = torch.tensor(sorted(list(opt_node_idxs)), device=self.device)
+
+        graph = PoseGraphOpt(self.pose_graph_nodes.poses[:node_num], to_optimize_idxs=opt_node_idxs).to(self.device)
         solver = self.pose_graph_solver
         strategy = ppost.TrustRegion(radius=1e4)
         optimizer = pp.optim.LM(graph, solver=solver, strategy=strategy, min=1e-6, vectorize=True)
         scheduler = StopOnPlateau(optimizer, steps=20, patience=3, decreasing=1e-4, verbose=self.verbose)
         weight = torch.diag_embed(self.pose_graph_edges.confs[:edge_num])
 
+        related_mask = graph.get_related_edge_idxs(self.pose_graph_edges.edges[:edge_num])
+        weight = weight[related_mask]
+
+
         with suppress_specific_print("Linear solver failed. Breaking optimization step...", color=FontColor.PoseGraphOpt):
             scheduler.optimize(input=(self.pose_graph_edges.edges[:edge_num],
                                       self.pose_graph_edges.poses[:edge_num]),
                               weight=weight)
-        self.pose_graph_nodes.poses[:node_num] = graph.nodes.detach()
+        self.pose_graph_nodes.poses[:node_num] = graph.get_nodes()
         print_msg("Pose graph optimization done.", color=FontColor.PoseGraphOpt)
+        self.loop_related_views = set()
 
     def add_view(self, image, image_shape, view_name):
         with torch.no_grad():
@@ -145,7 +161,8 @@ class OnlineSLAM:
         with torch.no_grad():
             dec_feat_ij, dec_feat_ji = self.frontend._decode_stereo(
                 enc_feat_i, enc_feat_j, enc_pos_i, enc_pos_j)
-            pose_ij = self.frontend.head_pose_s(dec_feat_ij[-1][:,0,:]) 
+            with torch.amp.autocast('cuda',enabled=False):
+                pose_ij = self.frontend.head_pose_s(dec_feat_ij[-1][:,0,:]) 
         se3_ij = pp.mat2SE3(pose_ij['pose'],atol=1e-3).data
         rel_pose_conf_ij = pose_ij['conf']
         
@@ -158,9 +175,9 @@ class OnlineSLAM:
         with torch.no_grad():
             ji_head_pts_input = [enc_feat_j]+[tok[:,1:,:].float() for tok in dec_feat_ji]
             ij_head_pts_input = [enc_feat_i]+[tok[:,1:,:].float() for tok in dec_feat_ij]
-
-            ji_ret = self.frontend.head_pts(ji_head_pts_input, true_shape_j)
-            ij_ret = self.frontend.head_pts(ij_head_pts_input, true_shape_i)
+            with torch.amp.autocast('cuda',enabled=False):
+                ji_ret = self.frontend.head_pts(ji_head_pts_input, true_shape_j)
+                ij_ret = self.frontend.head_pts(ij_head_pts_input, true_shape_i)
         
         pcls = torch.cat([ij_ret['pts3d'],ji_ret['pts3d']],dim=0)                #[2,224,224,3]
         confs = torch.cat([ij_ret['conf'],ji_ret['conf']],dim=0)                 #[2,224,224]
@@ -182,6 +199,8 @@ class OnlineSLAM:
         if i-j > self.neighbor_edge_num and self.verbose:
             print_msg(f"Adding loop closure edge (view {i} [{self.view_names[i]}] -- view {j} [{self.view_names[j]}]) with conf {rel_pose_conf_ij.item():.3f}",
                       color=FontColor.LoopClosure)
+            self.loop_related_views.add(i)
+            self.loop_related_views.add(j)
         
         scale_ij = 1.0
         sim3_ij = pp.Sim3(torch.cat([se3_ij, torch.tensor([[scale_ij]]).to(self.device)], dim=1)).to(self.device)

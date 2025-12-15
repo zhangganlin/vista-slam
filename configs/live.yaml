@@ -1,0 +1,60 @@
+device: "cuda"
+verbose: False
+
+# whether to use Rerun for online visualization
+rerun_vis: False
+# IP used by Rerun to log data for visualization, see https://ref.rerun.io/docs/python/0.24.1/common/initialization_functions/#rerun.connect_grpc
+rerun_url: rerun+http://127.0.0.1:9876/proxy
+# whether save the recording of rerun
+rerun_save: False
+# maximum number of views that rerun will show in real time
+rerun_vis_view_max: 10
+
+
+# output folder to save results; can be overridden by the command-line argument --output
+output_dir: output/test
+
+# path to pretrained weights of the frontend STA model
+STA_pretrain_path: pretrains/frontend_sta_weights.pth
+
+# path to ORB visual vocabulary for Bag-of-Words loop detection
+vocab_path: pretrains/ORBvoc.txt
+
+random_seed: 43
+
+# maximum allowable number of keyframe
+max_view_num: 800
+
+# node i connects to all [i-neighbor_edge_num, i+neighbor_edge_num]
+neighbor_edge_num: 3  
+
+# node i has at most loop_edge_num edges for loop closure
+loop_edge_num: 3
+
+# if node i has a loop edge to node j, then |i-j| > loop_dist_min
+loop_dist_min: 40     
+
+# non-maximum suppression for loop closure
+loop_nms: 40          
+
+# the loop candidate must have similarity greater than at least x neighbors
+loop_cand_thresh_neighbor: 5 
+
+# threshold to filter out uncertain points
+point_conf_thres: 4.2 
+
+# threshold to filter out uncertain relative poses
+rel_pose_thres: 0.75
+
+# keyframe selection strategy: "stride" or "flow"
+  # "stride": use every x frames as keyframes (used in the paper)
+  # "flow": select a new keyframe if the optical flow between the current frame
+  #         and the last keyframe exceeds flow_thres
+  # "flow_stride": use "flow" to detect keyframes as above, but switch 
+  #                to "stride" if the number of keyframes exceeds max_view_num
+keyframe_detection: "flow"
+stride: 25
+flow_thres: 5.0
+
+# do pose graph optimization every x keyframes
+pgo_every: 100

@@ -7,6 +7,7 @@ import torch.backends.cudnn as cudnn
 import rerun as rr
 from vista_slam.datasets.slam_images_only import SLAM_image_only
 import glob, time, argparse, yaml, munch, os, tqdm
+import threading
 import cv2
 print=print_msg
 
@@ -57,38 +58,60 @@ def log_view(topic, cam_pose, img, pts3d, K, pts3d_mask,show_img=True, show_came
         rr.log(f"world/est/{topic}/cam",rr.Image(img))
 
 
-def rerun_vis_views(slam:OnlineSLAM, show_all):
-    est_poses = [None for _ in range(slam.view_num)]
-    local_pcls = [None for _ in range(slam.view_num)]
-    masks = [None for _ in range(slam.view_num)]
+def rerun_vis_views(slam:OnlineSLAM, num_to_show):
     
-    if show_all:
-        to_show = list(range(slam.view_num))
-        for v in range(slam.view_num):
-            rr.log(f"world/est/cam_{v}",rr.Clear(recursive=True))
-    else:
-        to_show = [slam.view_num-1]
+    to_show = list(range(max(0, slam.view_num-num_to_show), slam.view_num))
 
     for v in to_show:
-        
         view = slam.get_view(v)
         pose, depth, intri = view.pose, view.depth, view.intri
-        
         pose = pose.cpu().numpy()
         pcl = compute_local_pointclouds(depth.unsqueeze(0),intri).squeeze(0)
         pointmap,_ = slam.get_pointmap_vis(v)
-        if show_all:
-            est_poses[v] = pose
-            local_pcls[v] = pcl
-            masks[v] = pcl[:,:,2]>0
+
         pcl = pcl.cpu().numpy()
         pcl_mask = pcl[:,:,2]>0
         k = intri.cpu().numpy()
         show_pointcloud = True
-        log_view(f"cam_{v}",pose,
+
+        idx = slam.view_num-1 - v
+        topic = f"cam_{idx}"
+        log_view(topic,pose,
                 slam.imgs[v],pcl,k,pcl_mask,show_img=False, show_camera=True, pointmap=pointmap, pointcloud=show_pointcloud,
                 downsample=0.2)
-    return est_poses, local_pcls, masks
+    return 
+
+class LatestCamera:
+    def __init__(self, src):
+        self.cap = cv2.VideoCapture(src)
+        self.frame = None
+        self.lock = threading.Lock()
+        self.running = True
+
+        self.thread = threading.Thread(target=self._reader)
+        self.thread.start()
+
+    def _reader(self):
+        while self.running:
+            ret, frame = self.cap.read()
+            if ret:
+                with self.lock:
+                    self.frame = frame
+
+    def read(self):
+        with self.lock:
+            if self.frame is None:
+                return None
+            else:
+                frame = self.frame.copy()
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                return frame
+
+    def stop(self):
+        self.running = False
+        self.thread.join()
+        self.cap.release()
+
 
 
 if __name__ == "__main__":
@@ -165,16 +188,14 @@ if __name__ == "__main__":
     read_data_start = time.time()
     t = 0
 
-    cap = cv2.VideoCapture(cfg.camera)
-    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)   # optional, helps on some systems
+    cam = LatestCamera(cfg.camera)
 
     while t < last:
-        ret, frame = cap.read()
-        if not ret or frame is None:
-            print("Failed to grab frame")
-            continue
-
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        frame = None
+        while frame is None:
+            frame = cam.read()
+        
         data = dataset.process_image(frame, f"{t:06d}")
         img_gray = (data.gray.squeeze(0).numpy()*255).astype(np.uint8)
         is_keyframe = slam.flow_tracker.compute_disparity(img_gray, visualize=False)
@@ -183,7 +204,7 @@ if __name__ == "__main__":
             if t == last - 1 and not is_optimized:
                 slam.pose_graph_optimize()
                 torch.cuda.empty_cache()
-                rerun_vis_views(slam,show_all=True)
+                rerun_vis_views(slam, num_to_show=cfg.rerun_vis_view_max)
             continue
                 
         img_shape = torch.tensor(data.rgb.shape[1:3]).unsqueeze(0)
@@ -208,7 +229,7 @@ if __name__ == "__main__":
                     color=FontColor.WARNING)
             break
 
-        rr.set_time("index",sequence=t)
+        # rr.set_time("index",sequence=t)
         rerun_vis_views(slam, is_optimized)            
         read_data_start = time.time()
         t+=1
@@ -230,6 +251,7 @@ if __name__ == "__main__":
                         save_depths=True, save_intrinsics=True, 
                         save_confs=True, save_ply=True,
                         gt_poses=None, gt_depths=None, gt_intrinsics=None)
+    cam.stop()
     print(f"Done.")
 
     

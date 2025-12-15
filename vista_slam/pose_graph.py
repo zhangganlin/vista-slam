@@ -54,7 +54,7 @@ class PoseGraphNodes:
         self.num_nodes = 0
 
 
-class PoseGraphOpt(nn.Module):
+class PoseGraphOptAll(nn.Module):
     def __init__(self, nodes):
         super().__init__()
         self.nodes = pp.Parameter(nodes)
@@ -65,7 +65,94 @@ class PoseGraphOpt(nn.Module):
         error = poses @ node1.Inv() @ node2
 
         return error.Log().tensor()
-    
+
+
+class PoseGraphOpt(nn.Module):
+    def __init__(self, nodes, to_optimize_idxs:torch.Tensor="all"):
+        super().__init__()
+        device = nodes.device
+        if to_optimize_idxs == "all":
+            to_optimize_idxs = torch.arange(nodes.shape[0], device=device)
+
+        self.idxs_opt = to_optimize_idxs.long().to(device)
+        all_idxs = torch.arange(nodes.shape[0], device=device)
+        self.idxs_fix = all_idxs[~torch.isin(all_idxs, self.idxs_opt)]
+
+        self.register_buffer(
+            "opt_map",
+            -torch.ones(nodes.shape[0], dtype=torch.long, device=device)
+        )
+        self.register_buffer(
+            "fix_map",
+            -torch.ones(nodes.shape[0], dtype=torch.long, device=device)
+        )
+        self.opt_map[self.idxs_opt] = torch.arange(len(self.idxs_opt), device=device)
+        self.fix_map[self.idxs_fix] = torch.arange(len(self.idxs_fix), device=device)
+
+
+
+        self.nodes_opt = pp.Parameter(nodes[self.idxs_opt]).to(device)
+        self.nodes_fixed = nodes[self.idxs_fix]
+
+
+    def get_nodes(self):
+        nodes = pp.identity_Sim3(self.idxs_opt.shape[0] + self.idxs_fix.shape[0]).to(self.nodes_opt.device)
+        nodes[self.idxs_opt] = self.nodes_opt.detach().clone()
+        nodes[self.idxs_fix] = self.nodes_fixed.detach().clone()
+        return nodes
+
+    def forward(self, edges, poses):
+        # edges: [E, 2] (global indices)
+
+        in_opt = torch.isin(edges, self.idxs_opt)   # [E, 2]
+        both_opt   = in_opt[:, 0] & in_opt[:, 1]
+        first_opt  = in_opt[:, 0] & ~in_opt[:, 1]
+        second_opt = ~in_opt[:, 0] & in_opt[:, 1]
+
+        # -----------------------------
+        # Type 1: both endpoints optimized
+        # -----------------------------
+        edges_both = edges[both_opt]   # global
+        i_both = self.opt_map[edges_both[:, 0]]  # local opt idx
+        j_both = self.opt_map[edges_both[:, 1]]  # local opt idx
+
+        nodes_i_both = self.nodes_opt[i_both]
+        nodes_j_both = self.nodes_opt[j_both]
+
+        # -----------------------------
+        # Type 2: first optimized, second fixed
+        # -----------------------------
+        edges_first = edges[first_opt]
+        i_first = self.opt_map[edges_first[:, 0]]  # opt
+        j_first = self.fix_map[edges_first[:, 1]]  # fixed
+
+        nodes_i_first = self.nodes_opt[i_first]
+        nodes_j_first = self.nodes_fixed[j_first]
+
+        # -----------------------------
+        # Type 3: first fixed, second optimized
+        # -----------------------------
+        edges_second = edges[second_opt]
+        i_second = self.fix_map[edges_second[:, 0]]  # fixed
+        j_second = self.opt_map[edges_second[:, 1]]  # opt
+
+        nodes_i_second = self.nodes_fixed[i_second]
+        nodes_j_second = self.nodes_opt[j_second]
+
+        error_both = poses[both_opt] @ nodes_i_both.Inv() @ nodes_j_both
+        error_first = poses[first_opt] @ nodes_i_first.Inv() @ nodes_j_first
+        error_second = poses[second_opt] @ nodes_i_second.Inv() @ nodes_j_second
+
+        error = torch.cat([error_both, error_first, error_second], dim=0)
+        
+        return error.Log().tensor()
+
+
+    def get_related_edge_idxs(self, edges:torch.Tensor):
+        in_opt = torch.isin(edges, self.idxs_opt)   # [E, 2]
+        related_mask   = in_opt[:, 0] | in_opt[:, 1]
+        return related_mask
+
 
 # def cpu_solver(A,b):
 #     from scipy.sparse import csr_matrix
