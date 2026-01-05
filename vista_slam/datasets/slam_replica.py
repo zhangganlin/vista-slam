@@ -10,33 +10,44 @@ from .base.base_view_graph_dataset import BaseViewGraphDataset
 from ..utils.image import imread_cv2   
 from ..utils.geometry import depthmap_to_camera_coordinates
 
-class SLAM_Scannet(BaseViewGraphDataset):
+class SLAM_Replica(BaseViewGraphDataset):
     def __init__(self, path_to_scene, resolution=(224,224)):
         super().__init__(resolution=resolution)
         self.resolution = resolution
-        self.input_folder = f"{path_to_scene}/sensor_data"
+        self.input_folder = f"{path_to_scene}/results"
         self.color_paths = sorted(glob.glob(os.path.join(
-            self.input_folder, '*.color.jpg')))
+            self.input_folder, 'frame*.jpg')))
         self.depth_paths = sorted(glob.glob(os.path.join(
-            self.input_folder, '*.depth.png')))
-        self.pose_paths = sorted(glob.glob(os.path.join(
-            self.input_folder, '*.pose.txt')))
+            self.input_folder, 'depth*.png')))
         self.n_img = len(self.color_paths)
-        intri_path = osp.join(path_to_scene, 'intrinsic/intrinsic_depth.txt')
-        self.intri = np.loadtxt(intri_path).astype(np.float32)[:3, :3]
+        self.load_poses(osp.join(path_to_scene, 'traj.txt'))
+
+        self.intri = np.array([[600.0, 0.0, 599.5],
+                              [0.0, 600.0, 339.5],
+                              [0.0, 0.0, 1.0]], dtype=np.float32)
+
+
+    def load_poses(self, path):
+        self.poses = []
+        with open(path, "r") as f:
+            lines = f.readlines()
+        for i in range(self.n_img):
+            line = lines[i]
+            c2w = np.array(list(map(float, line.split()))).reshape(4, 4)
+            self.poses.append(c2w)
 
     def __getitem__(self, i):
         value = munch.Munch()
-        camera_pose = np.loadtxt(self.pose_paths[i]).astype(np.float32)
+        camera_pose = self.poses[i].astype(np.float32)
         rgb_image = imread_cv2(self.color_paths[i])
         depthmap = imread_cv2(self.depth_paths[i], cv2.IMREAD_UNCHANGED)
-        depthmap = depthmap.astype(np.float32) / 1000
+        depthmap = depthmap.astype(np.float32) / 6553.5
         depthmap[~np.isfinite(depthmap)] = 0  # invalid
 
         rgb_image = cv2.resize(rgb_image, (depthmap.shape[1], depthmap.shape[0]))
         rgb_image, depthmap, intrinsic = self._crop_resize_if_necessary(
             rgb_image, depthmap, self.intri, self.resolution,
-            w_edge=10, h_edge=10)
+            w_edge=0, h_edge=0)
         pts3d_cam, valid_mask = depthmap_to_camera_coordinates(depthmap, intrinsic)
         ImgNorm = tvf.Compose([tvf.ToTensor(), tvf.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
         ImgGray = tvf.Compose([tvf.ToTensor(), tvf.Grayscale(num_output_channels=1)])

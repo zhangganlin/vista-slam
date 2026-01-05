@@ -19,8 +19,22 @@ class SLAM_TUMRGBD(BaseViewGraphDataset):
         self.color_paths, self.depth_paths, self.poses = self.loadtum(
             self.input_folder, frame_rate=32)
         self.n_img = len(self.color_paths)
-        intri = self.parse_list(osp.join(path_to_scene, 'intrinsics.txt'))
-        self.intri = intri.astype(np.float32)
+
+        if osp.exists(osp.join(path_to_scene, 'intrinsics.txt')):
+            intri = self.parse_list(osp.join(path_to_scene, 'intrinsics.txt'))
+            self.intri = intri.astype(np.float32)
+        elif "freiburg1" in path_to_scene:
+            self.intri = np.array([[517.3, 0.0, 318.6],
+                                   [0.0, 516.5, 255.3],
+                                   [0.0, 0.0, 1.0]], dtype=np.float32)
+        elif "freiburg2" in path_to_scene:
+            self.intri = np.array([[520.9, 0.0, 325.1],
+                                   [0.0, 521.0, 249.7],
+                                   [0.0, 0.0, 1.0]], dtype=np.float32)
+        elif "freiburg3" in path_to_scene:
+            self.intri = np.array([[535.4, 0.0, 320.1],
+                                   [0.0, 539.2, 247.6],
+                                   [0.0, 0.0, 1.0]], dtype=np.float32)
 
     def parse_list(self, filepath):
         """ read list data """
