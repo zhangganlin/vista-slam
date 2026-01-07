@@ -26,7 +26,8 @@
   </strong></p>
 
 ### Update 
-<a href="#run-with-live-camera">Live camera mode</a> is now supported!
+- Evaluation results on additional datasets (TUM-RGBD *freiburg2* and *freiburg3* partitions, Replica, and ScanNet) have been released in the supplementary material of the latest version of the paper on <a href="https://arxiv.org/abs/2509.01584" target="_blank">ArXiv</a>. The evaluation scripts for these datasets have also been added to this repository.
+- <a href="#run-with-live-camera">Live camera mode</a> is now supported!
 
 https://github.com/user-attachments/assets/ac8732d0-4efd-4814-a168-01eae799df7c
 
