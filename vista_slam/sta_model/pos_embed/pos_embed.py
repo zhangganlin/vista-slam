@@ -106,6 +106,7 @@ def interpolate_pos_embed(model, checkpoint_model):
 try:
     from .curope import cuRoPE2D
     RoPE2D = cuRoPE2D
+    import nothing
 except ImportError as e:
     # print(e)
     print(f'Warning, cannot find cuda-compiled version of RoPE2D, using a slow pytorch version instead')
@@ -116,19 +117,52 @@ except ImportError as e:
             super().__init__()
             self.base = freq 
             self.F0 = F0
+            self._inv_freq_cache = {}
+            self._sin_cos_cache = {}
             
         @staticmethod
         def rotate_half(x):
             x1, x2 = x[..., : x.shape[-1] // 2], x[..., x.shape[-1] // 2 :]
             return torch.cat((-x2, x1), dim=-1)
+
+        def _get_inv_freq(self, q, device, dtype):
+            key = (device.type, device.index, dtype, q)
+            inv_freq = self._inv_freq_cache.get(key)
+            if inv_freq is None:
+                inv_freq = self.F0 / (self.base ** (torch.arange(q, device=device, dtype=dtype) / q))
+                self._inv_freq_cache[key] = inv_freq
+            return inv_freq
+
+        def _get_sin_cos_cache(self, min_pos, max_pos, q, device, dtype):
+            key = (device.type, device.index, dtype, q)
+            cached = self._sin_cos_cache.get(key)
+            if cached is None or cached[0] > min_pos or cached[1] < max_pos:
+                inv_freq = self._get_inv_freq(q, device, dtype)
+                positions = torch.arange(min_pos, max_pos + 1, device=device, dtype=dtype)
+                freqs = positions[:, None] * inv_freq[None, :]
+                cos = freqs.cos()
+                sin = freqs.sin()
+                self._sin_cos_cache[key] = (min_pos, max_pos, cos, sin)
+            else:
+                _, _, cos, sin = cached
+            return cos, sin
             
         def apply_rope1d(self, tokens, pos1d):
             assert pos1d.ndim == 2
             q = tokens.size(-1) // 2
-            inv_freq = self.F0 / (self.base ** (torch.arange(q, device=tokens.device, dtype=tokens.dtype) / q))
-            freqs = pos1d.to(tokens.dtype).unsqueeze(-1) * inv_freq
-            cos = freqs.cos().unsqueeze(1)
-            sin = freqs.sin().unsqueeze(1)
+            if pos1d.dtype in (torch.int8, torch.int16, torch.int32, torch.int64):
+                pos_index = pos1d.to(torch.long)
+                min_pos = int(pos_index.min().item())
+                max_pos = int(pos_index.max().item())
+                cos_cache, sin_cache = self._get_sin_cos_cache(min_pos, max_pos, q, tokens.device, tokens.dtype)
+                offset = -min_pos
+                cos = cos_cache[pos_index + offset].unsqueeze(1)
+                sin = sin_cache[pos_index + offset].unsqueeze(1)
+            else:
+                inv_freq = self._get_inv_freq(q, tokens.device, tokens.dtype)
+                freqs = pos1d.to(tokens.dtype).unsqueeze(-1) * inv_freq
+                cos = freqs.cos().unsqueeze(1)
+                sin = freqs.sin().unsqueeze(1)
             cos = torch.cat((cos, cos), dim=-1)
             sin = torch.cat((sin, sin), dim=-1)
             return (tokens * cos) + (self.rotate_half(tokens) * sin)
