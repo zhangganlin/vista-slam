@@ -22,6 +22,7 @@ all_cuda_archs = [
     # '-gencode', 'arch=compute_75,code=sm_75',  # RTX A6000
     '-gencode', 'arch=compute_80,code=sm_80',  # A100
     '-gencode', 'arch=compute_86,code=sm_86',  # A40, L40S
+    '-gencode', 'arch=compute_89,code=sm_89',  # RTX 4070 / 4090 (Ada Lovelace)
     '-gencode', 'arch=compute_90,code=sm_90',  # H100
 ]
 
