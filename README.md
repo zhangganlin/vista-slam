@@ -61,8 +61,12 @@ https://github.com/user-attachments/assets/ac8732d0-4efd-4814-a168-01eae799df7c
       <a href="#acknowledgement">Acknowledgement</a>
     </li>
     <li>
+      <a href="#licensing">Licensing</a>
+    </li>
+    <li>
       <a href="#citation">Citation and Contact</a>
     </li>
+
   </ol>
 </details>
 
@@ -192,6 +196,12 @@ python evaluation_tumrgbd.py --dataset_folder "datasets/tumrgbd" --output output
 ```
 > **Note:** There may be minor differences between the released codebase and the results reported in the paper due to code refactoring and hardware variations, but the overall results should be largely consistent.
 
+## Licensing
+Some files are derived from DUSt3R, which is licensed under CC BY-NC-SA 4.0.
+These files are clearly marked with license headers in the source code and
+remain subject to the CC BY-NC-SA 4.0 terms.
+
+All other files are licensed under Apache 2.0.
 
 ## Acknowledgement
 Our codebase is partially based on [Spann3r](https://github.com/HengyiWang/spann3r), [SLAM3R](https://github.com/PKU-VCL-3DV/SLAM3R) and [VGGT-SLAM](https://github.com/MIT-SPARK/VGGT-SLAM), we thank the authors for making these codebases publicly available. Our work would not have been possible without your great efforts!
@@ -213,3 +223,5 @@ If you find our code or paper useful, please cite
 ```
 ## Contact
 Please raise [issues](https://github.com/zhangganlin/vista-slam/issues) in this repository or contact [Ganlin Zhang](mailto:ganlin.zhang@tum.de) directly for questions, comments, or bug reports.
+
+
